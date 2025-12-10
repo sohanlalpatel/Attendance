@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const path = require("path");
 const cors = require("cors"); 
+const AdminRouter = require("./Routes/AdminRoutes");
 
 
 
@@ -24,6 +25,7 @@ mongoose
   .catch((err) => console.error("DB connection error:", err));
 
   
+  app.use("/api/admin", AdminRouter);
 
 
 
