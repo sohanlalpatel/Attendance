@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const cors = require("cors"); 
 const AdminRouter = require("./Routes/AdminRoutes");
+const Authroutes = require("./Routes/AuthRoutes");
 
 
 
@@ -26,7 +27,7 @@ mongoose
 
   
   app.use("/api/admin", AdminRouter);
-
+  app.use("/api/user", Authroutes);
 
 
 const PORT = process.env.PORT ;

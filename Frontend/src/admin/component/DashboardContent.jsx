@@ -9,9 +9,10 @@ import {
   Calendar,
   AlertCircle,
 } from "lucide-react";
-import { StatCard } from "./stat-card";
-import { AttendanceChart } from "./attendance-chart";
-import { RecentActivity } from "./recent-activity";
+
+import { StatCard } from "./StatCard";
+import { AttendanceChart } from "./AttendenceChart";
+import { RecentActivity } from "./RecentlyActivity";
 
 export function DashboardContent() {
   const [stats, setStats] = useState({

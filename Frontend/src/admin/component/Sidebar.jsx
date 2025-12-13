@@ -19,6 +19,8 @@ import {
 } from "lucide-react"
 import Dashboard from "../pages/Dashboard";
 import Users from "../pages/Users";
+import { DashboardContent } from "./DashboardContent";
+import { AttendanceTable } from "./AttendanceTable";
 
 
 
@@ -73,13 +75,21 @@ export function Sidebar() {
     <div className="flex h-screen bg-gray-50">
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-30 bg-black/50 bg-opacity-50 lg:hidden" onClick={closeMobileMenu} />
+        <div
+          className="fixed inset-0 z-30 bg-black/50 bg-opacity-50 lg:hidden"
+          onClick={closeMobileMenu}
+        />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex h-full flex-col bg-white border-r border-gray-200 shadow-lg transition-all duration-300 lg:relative lg:translate-x-0 ${collapsed ? "w-16" : "w-64"
-          } ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        className={`fixed inset-y-0 left-0 z-40 flex h-full flex-col bg-white border-r border-gray-200 shadow-lg transition-all duration-300 lg:relative lg:translate-x-0 ${
+          collapsed ? "w-16" : "w-64"
+        } ${
+          mobileMenuOpen
+            ? "translate-x-0"
+            : "-translate-x-full lg:translate-x-0"
+        }`}
       >
         {/* Sidebar Header */}
         <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
@@ -89,13 +99,18 @@ export function Sidebar() {
             </div>
             {!collapsed && (
               <div className="flex flex-col">
-                <span className="text-sm font-semibold text-gray-900">JJ International Group</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  JJ International Group
+                </span>
                 <span className="text-xs text-gray-500">Admin Management</span>
               </div>
             )}
           </div>
           {/* Mobile close button */}
-          <button onClick={closeMobileMenu} className="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-600">
+          <button
+            onClick={closeMobileMenu}
+            className="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-600"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -104,7 +119,9 @@ export function Sidebar() {
         <div className="flex-1 overflow-y-auto py-2">
           <div className="px-3">
             {!collapsed && (
-              <div className="mb-2 px-4 py-2 text-xs font-semibold uppercase text-gray-500">Navigation</div>
+              <div className="mb-2 px-4 py-2 text-xs font-semibold uppercase text-gray-500">
+                Navigation
+              </div>
             )}
             <nav className="space-y-1">
               {[
@@ -115,12 +132,17 @@ export function Sidebar() {
                   // bg: "bg-blue-50 text-blue-700 border-r-2 border-blue-600",
                 },
                 {
+                  label: "Attendance",
+                  icon: Home,
+                  submenu: ["Attendance"],
+                  // bg: "bg-blue-50 text-blue-700 border-r-2 border-blue-600",
+                },
+                {
                   label: "Users",
                   icon: Home,
                   submenu: ["Users"],
                   // bg: "bg-blue-50 text-blue-700 border-r-2 border-blue-600",
                 },
-
               ].map(({ label, icon: Icon, submenu, bg }) => (
                 <div key={label}>
                   <button
@@ -133,15 +155,27 @@ export function Sidebar() {
                       }
                     }}
                     className={`flex w-full items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-colors 
-    ${activeView === label ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"}`}
+    ${
+      activeView === label
+        ? "bg-blue-100 text-blue-700"
+        : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+    }`}
                   >
-                    <Icon className={`h-5 w-5 ${collapsed ? "mx-auto" : "mr-3"} flex-shrink-0`} />
+                    <Icon
+                      className={`h-5 w-5 ${
+                        collapsed ? "mx-auto" : "mr-3"
+                      } flex-shrink-0`}
+                    />
                     {!collapsed && (
                       <>
-                        <span className="flex-1 truncate text-left">{label}</span>
+                        <span className="flex-1 truncate text-left">
+                          {label}
+                        </span>
                         {label !== "Dashboard" && submenu.length > 0 && (
                           <ChevronDown
-                            className={`h-4 w-4 transition-transform flex-shrink-0 ${openMenus[label] ? "rotate-180" : ""}`}
+                            className={`h-4 w-4 transition-transform flex-shrink-0 ${
+                              openMenus[label] ? "rotate-180" : ""
+                            }`}
                           />
                         )}
                       </>
@@ -162,8 +196,8 @@ export function Sidebar() {
                         <button
                           key={title}
                           onClick={() => {
-                            setActiveView(title)
-                            closeMobileMenu()
+                            setActiveView(title);
+                            closeMobileMenu();
                           }}
                           className="block text-left w-full rounded-md py-2 pl-3 pr-4 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                         >
@@ -220,12 +254,20 @@ export function Sidebar() {
           onClick={() => setCollapsed(!collapsed)}
           className="absolute -right-3 top-20 hidden lg:flex h-6 w-6 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 shadow-sm transition-colors"
         >
-          <ChevronRight className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
+          <ChevronRight
+            className={`h-4 w-4 transition-transform ${
+              collapsed ? "" : "rotate-180"
+            }`}
+          />
         </button>
       </aside>
 
       {/* Main Content with Navbar */}
-      <div className={`flex flex-col flex-1 transition-all duration-300 lg:${collapsed ? "ml-16" : "ml-64"} min-w-0`}>
+      <div
+        className={`flex flex-col flex-1 transition-all duration-300 lg:${
+          collapsed ? "ml-16" : "ml-64"
+        } min-w-0`}
+      >
         {/* Top Navbar */}
         <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 shadow-sm">
           <div className="flex items-center gap-3 min-w-0">
@@ -235,7 +277,9 @@ export function Sidebar() {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h1 className="text-lg font-semibold text-gray-900 truncate">Admin Dashboard</h1>
+            <h1 className="text-lg font-semibold text-gray-900 truncate">
+              Admin Dashboard
+            </h1>
           </div>
           <button
             onClick={handleLogout}
@@ -248,12 +292,12 @@ export function Sidebar() {
 
         {/* Main Content Area */}
         <main className="flex-1 p-4 sm:p-6 bg-gray-50 overflow-y-auto">
-          {activeView === "Dashboard" && <Dashboard />}
-          {activeView === "Users" && <Users/>}
+          {activeView === "Dashboard" && <DashboardContent />}
+          {activeView === "Attendance" && <AttendanceTable />}
 
-
+          {activeView === "Users" && <Users />}
         </main>
       </div>
     </div>
-  )
+  );
 }
