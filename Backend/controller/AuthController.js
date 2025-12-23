@@ -2,6 +2,7 @@ const User = require("../model/userSchema");
 const bcrypt = require ("bcryptjs");
 const jwt = require ("jsonwebtoken");
 const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
 
 
 // ================= REGISTER =================
@@ -92,46 +93,45 @@ const crypto = require("crypto");
 
 
 // ================= FORGOT PASSWORD =================
-  const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        user.resetPasswordToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+
+        user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+        await user.save({ validateBeforeSave: false });
+
+        const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+
+        await sendEmail({
+            to: user.email,
+            subject: "Reset Your Password",
+            html: `
+        <h2>Password Reset</h2>
+        <p>Click below to reset your password:</p>
+        <a href="${resetUrl}" style="padding:10px 20px;background:#ef4444;color:#fff;text-decoration:none;border-radius:6px">
+          Reset Password
+        </a>
+        <p>This link expires in 15 minutes.</p>
+      `,
+        });
+
+        res.json({ success: true, message: "Reset link sent to email" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString("hex");
-
-    user.resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 min
-
-    await user.save({ validateBeforeSave: false });
-
-    // (Email sending yaha hota – abhi console)
-    const resetUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/api/auth/reset-password/${resetToken}`;
-
-    console.log("Reset URL:", resetUrl);
-
-    res.status(200).json({
-      success: true,
-      message: "Password reset link sent to email",
-      resetUrl, // dev purpose
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
 

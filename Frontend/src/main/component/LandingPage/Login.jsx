@@ -1,121 +1,224 @@
 "use client";
 
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { AlertCircle } from "lucide-react";
 
-export function Login() {
-  const [email, setEmail] = useState("demo@example.com");
-  const [password, setPassword] = useState("demo123");
+export default function AuthPage() {
+  const navigate = useNavigate();
+  const [isRegister, setIsRegister] = useState(false);
+  const [isForgot, setIsForgot] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-const navigate = useNavigate();
-  const handleSubmit = (e) => {
+  const [message, setMessage] = useState("");
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    phone: "",
+    gender: "",
+    role: "EMPLOYEE",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // ================= LOGIN =================
+  const handleLogin = async (e) => {
     e.preventDefault();
+    try {
+      setLoading(true);
+      setError("");
 
-    // Demo validation
-    if (email !== "demo@example.com" || password !== "demo123") {
-      setError("Invalid email or password");
-      return;
+      const res = await axios.post("/api/user/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      // ✅ Session Storage
+      sessionStorage.setItem("token", res.data.token);
+      sessionStorage.setItem("user", JSON.stringify(res.data.user));
+
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setError("");
-    alert("Login successful!");
+  // ================= REGISTER =================
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError("");
+
+      await axios.post("/api/user/register", formData);
+
+      setMessage("Registration successful. Please login.");
+      setIsRegister(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= FORGOT PASSWORD =================
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError("");
+
+      await axios.post("/api/user/forgot-password", {
+        email: formData.email,
+      });
+
+      setMessage("Password reset link sent to your email");
+      setIsForgot(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send reset link");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="  bg-gradient-to-br from-background via-[#FEFBF8] to-background flex items-center justify-center px-4 py-8">
-      <div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"
-        style={{
-          background: "linear-gradient(to bottom right, #FD7979, transparent)",
-        }}
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"
-        style={{
-          background: "linear-gradient(to bottom right, #FFCDC9, transparent)",
-          animationDelay: "1s",
-        }}
-      />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-[#FEFBF8] to-background px-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+        <h2 className="text-2xl font-bold text-center mb-2">
+          {isForgot
+            ? "Forgot Password"
+            : isRegister
+            ? "Create Account"
+            : "Welcome Back"}
+        </h2>
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-[#FFCDC9]">
+        <p className="text-center text-gray-500 mb-6">
+          {isForgot
+            ? "Enter your registered email"
+            : isRegister
+            ? "Register to continue"
+            : "Login to your account"}
+        </p>
+
+        {(error || message) && (
           <div
-            onClick={() => navigate("/")}
-            className="flex items-center justify-center gap-3 mb-8 cursor-pointer"
+            className={`flex gap-2 p-3 mb-4 rounded-lg text-sm ${
+              error
+                ? "bg-red-50 border border-red-200 text-red-600"
+                : "bg-green-50 border border-green-200 text-green-600"
+            }`}
           >
-            <div className="w-12 h-12 bg-red-300 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <span className="text-white  font-bold text-xl">A</span>
-            </div>
-            <h1 className="text-2xl font-bold gradient-text">AttendanceFlow</h1>
+            <AlertCircle size={18} />
+            <p>{error || message}</p>
           </div>
+        )}
 
-          <h2 className="text-2xl font-bold text-center text-text mb-2">
-            Welcome Back
-          </h2>
-          <p className="text-center text-text-secondary mb-8">
-            Sign in to your account to continue
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="flex gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-                <AlertCircle size={20} className="flex-shrink-0" />
-                <p className="text-sm">{error}</p>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-text mb-2">
-                Email Address
-              </label>
+        <form
+          onSubmit={
+            isForgot
+              ? handleForgotPassword
+              : isRegister
+              ? handleRegister
+              : handleLogin
+          }
+          className="space-y-4"
+        >
+          {isRegister && (
+            <>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-white text-text placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                placeholder="Enter your email"
+                name="fullName"
+                placeholder="Full Name"
+                onChange={handleChange}
                 required
+                className="w-full px-4 py-3 border rounded-lg"
               />
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-text mb-2">
-                Password
-              </label>
               <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-white text-text placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                placeholder="Enter your password"
+                name="phone"
+                placeholder="Phone"
+                onChange={handleChange}
                 required
+                className="w-full px-4 py-3 border rounded-lg"
               />
-            </div>
 
-            <button
-              type="submit"
-              className="w-full px-4 py-3 bg-red-400 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center gap-2"
-            >
-              Sign In
-            </button>
-          </form>
+              <select
+                name="gender"
+                onChange={handleChange}
+                className="w-full px-4 py-3 border rounded-lg"
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </>
+          )}
 
-          <div className="mt-6 pt-6 border-t border-border text-center text-sm text-text-secondary">
-            <p>Demo Credentials:</p>
-            <p className="font-mono text-xs mt-2 bg-surface p-2 rounded">
-              demo@example.com / demo123
-            </p>
-          </div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 border rounded-lg"
+          />
 
-          <p className="text-center text-text-secondary text-sm mt-6">
-            Don't have an account?{" "}
-            <Link to="#" className="text-primary font-semibold hover:underline">
-              Contact support
-            </Link>
+          {!isForgot && (
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border rounded-lg"
+            />
+          )}
+
+          <button
+            disabled={loading}
+            type="submit"
+            className="w-full py-3 bg-red-400 text-white rounded-lg font-semibold"
+          >
+            {loading
+              ? "Please wait..."
+              : isForgot
+              ? "Send Reset Link"
+              : isRegister
+              ? "Register"
+              : "Login"}
+          </button>
+        </form>
+
+        {!isRegister && !isForgot && (
+          <p
+            className="text-center text-sm mt-4 text-red-500 cursor-pointer"
+            onClick={() => setIsForgot(true)}
+          >
+            Forgot password?
           </p>
-        </div>
+        )}
+
+        <p className="text-center text-sm mt-6">
+          {isRegister ? "Already have an account?" : "Not registered?"}{" "}
+          <button
+            onClick={() => {
+              setIsRegister(!isRegister);
+              setIsForgot(false);
+              setError("");
+              setMessage("");
+            }}
+            className="text-red-500 font-semibold"
+          >
+            {isRegister ? "Login" : "Register"}
+          </button>
+        </p>
       </div>
     </div>
   );

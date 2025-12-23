@@ -6,9 +6,10 @@ import BlogSection from './main/component/Blogs';
 import BlogPage from './main/pages/BlogPage';
 import HomePage from './main/pages/Attendence/HomePage';
 import UtsavPage from './main/pages/HomePage';
-import { Login } from './main/component/LandingPage/Login';
+import AuthPage from './main/component/LandingPage/Login';
 import AdminLoginForm from './admin/component/AdminLoginForm';
 import { Sidebar } from './admin/component/Sidebar';
+import ResetPassword from './main/component/LandingPage/ResetPassword';
 
 function App() {
 
@@ -17,9 +18,10 @@ function App() {
       <Router>
         <Routes>
           <Route path="/utsav" element={<UtsavPage />} />
-          <Route path="/Login" element={<Login />} />
+          <Route path="/Login" element={<AuthPage />} />
           <Route path="/admin/att" element={<AdminLoginForm />} />
           <Route path="/jjig/panel/dashboard" element={<Sidebar />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           <Route path="/blogs" element={<BlogPage />} />
           <Route path="/" element={<HomePage />} />
